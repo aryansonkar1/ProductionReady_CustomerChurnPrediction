@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 import joblib
@@ -7,6 +8,15 @@ import yaml
 
 # Initialize app
 app = FastAPI(title="Customer Churn Prediction API")
+
+# Add CORS Middleware to allow our UI to communicate with the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load config and model at startup
 with open("configs/config.yaml", "r") as f:
