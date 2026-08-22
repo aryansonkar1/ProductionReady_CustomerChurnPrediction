@@ -17,8 +17,8 @@ document.getElementById('churn-form').addEventListener('submit', async (e) => {
     };
 
     try {
-        // You may need to change 8002 to wherever the server is currently mapped in dev
-        const response = await fetch('http://127.0.0.1:8002/predict', {
+        // Now perfectly dynamic! It will work on locally and on Render/Cloud perfectly without modifying!
+        const response = await fetch('/predict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 import joblib
@@ -98,3 +99,6 @@ def predict_churn(customer: CustomerRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# Mount frontend directory to the root to serve the UI
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
