@@ -28,7 +28,7 @@ data/raw/*.csv
 data/processed/
 
 # Models
-models/*.pkl
+
 
 # MLflow
 mlruns/
