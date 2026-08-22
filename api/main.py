@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 import joblib
 import pandas as pd
@@ -53,6 +54,10 @@ class CustomerRequest(BaseModel):
                 "Contract": "Month-to-month"
             }
         }
+
+# Telemetry monitoring instrumentation
+Instrumentator().instrument(app).expose(app)
+
 
 @app.get("/health")
 def health_check():

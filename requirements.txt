@@ -16,3 +16,5 @@ uvicorn
 pytest
 httpx
 pydantic
+
+prometheus-fastapi-instrumentator
