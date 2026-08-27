@@ -2,7 +2,6 @@ import streamlit as st
 import joblib
 import yaml
 import pandas as pd
-import os
 
 # ── Page config ────────────────────────────────────────────────
 st.set_page_config(
@@ -30,7 +29,6 @@ st.markdown(
         background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
         color: #f0f0f0;
     }
-
     .card {
         background: rgba(255,255,255,0.07);
         border: 1px solid rgba(255,255,255,0.15);
@@ -39,10 +37,8 @@ st.markdown(
         backdrop-filter: blur(12px);
         margin-bottom: 1.5rem;
     }
-
     h1 { color: #a78bfa; font-weight: 700; font-size: 2.2rem; }
     h3 { color: #c4b5fd; }
-
     .result-stay {
         background: linear-gradient(135deg, #065f46, #047857);
         border-radius: 12px;
@@ -70,7 +66,6 @@ st.markdown(
         margin: 0.4rem 0;
         font-size: 1rem;
     }
-    div[data-testid="stSlider"] > div { color: #c4b5fd; }
     .stSelectbox label, .stSlider label { color: #d8b4fe !important; font-weight: 500; }
     </style>
     """,
@@ -110,27 +105,30 @@ with col4:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ── Build input DataFrame with defaults ────────────────────────
-full_df = pd.read_csv(config["data"]["raw_path"])
-column_order = full_df.columns
-default_row = full_df.iloc[0].copy()
-
-user_inputs = {
-    "tenure": tenure,
-    "MonthlyCharges": monthly_charges,
-    "Contract": contract,
-    "InternetService": internet_service,
-    "OnlineSecurity": online_security,
-    "TechSupport": tech_support,
+# ── Build input DataFrame (hardcoded defaults — no CSV file needed) ──
+# All columns the model pipeline expects, with sensible defaults,
+# overridden by whatever the user selected above.
+input_data = pd.DataFrame([{
+    "gender":           "Male",
+    "SeniorCitizen":    0,
+    "Partner":          "No",
+    "Dependents":       "No",
+    "tenure":           tenure,
+    "PhoneService":     "Yes",
+    "MultipleLines":    "No phone service",
+    "InternetService":  internet_service,
+    "OnlineSecurity":   online_security,
+    "OnlineBackup":     "No",
+    "DeviceProtection": "No",
+    "TechSupport":      tech_support,
+    "StreamingTV":      "No",
+    "StreamingMovies":  "No",
+    "Contract":         contract,
     "PaperlessBilling": paperless_billing,
-    "PaymentMethod": payment_method,
-}
-
-input_data = pd.DataFrame([user_inputs])
-for col in column_order:
-    if col not in input_data.columns:
-        input_data[col] = default_row[col]
-input_data = input_data[column_order]
+    "PaymentMethod":    payment_method,
+    "MonthlyCharges":   monthly_charges,
+    "TotalCharges":     str(monthly_charges * tenure),
+}])
 
 # ── Predict ────────────────────────────────────────────────────
 if st.button("🔍 Predict Churn Risk", use_container_width=True):
@@ -147,12 +145,12 @@ if st.button("🔍 Predict Churn Risk", use_container_width=True):
 
     if pred == 0:
         st.markdown(
-            f'<div class="result-stay">🟢 Customer Will Stay</div>',
+            '<div class="result-stay">🟢 Customer Will Stay</div>',
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            f'<div class="result-churn">🔴 Customer Will Churn</div>',
+            '<div class="result-churn">🔴 Customer Will Churn</div>',
             unsafe_allow_html=True,
         )
 
