@@ -1,20 +1,23 @@
-pandas
-numpy
-scikit-learn
-imbalanced-learn
-xgboost
-mlflow
-pyyaml
+# Core ML - pinned to match trained model versions exactly
+pandas==2.2.3
+numpy==2.5.2
+scikit-learn==1.9.0
+imbalanced-learn==0.14.2
+xgboost==3.4.1
 joblib
+pyyaml
 matplotlib
 seaborn
-jupyter
 
+# API
 fastapi
 uvicorn
+pydantic
+prometheus-fastapi-instrumentator
 
+# Testing
 pytest
 httpx
-pydantic
 
-prometheus-fastapi-instrumentator
+# MLflow tracking
+mlflow

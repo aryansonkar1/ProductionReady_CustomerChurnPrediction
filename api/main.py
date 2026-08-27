@@ -39,7 +39,7 @@ async def launch_streamlit():
         [
             "streamlit", "run", "streamlit_app.py",
             "--server.port", "8501",
-            "--server.address", "0.0.0.0",
+            "--server.address", "127.0.0.1",     # internal only – Render won't see this port
             "--server.headless", "true",
         ]
     )
