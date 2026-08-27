@@ -5,4 +5,4 @@ services:
     plan: starter
     region: oregon
     dockerfilePath: Dockerfile
-    healthCheckPath: /health
+    healthCheckPath: /

@@ -5,10 +5,7 @@ from pydantic import BaseModel, Field
 import joblib
 import pandas as pd
 import yaml
-import subprocess
-import os
 
-# Initialize app
 app = FastAPI(title="Customer Churn Prediction API")
 
 app.add_middleware(
@@ -19,7 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load config & model
 with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
@@ -32,26 +28,7 @@ except Exception as e:
     model = None
     print(f"Warning: Model could not be loaded. Error: {e}")
 
-# ── Launch Streamlit on startup (internal port 8501) ────────────
-@app.on_event("startup")
-async def launch_streamlit():
-    subprocess.Popen(
-        [
-            "streamlit", "run", "streamlit_app.py",
-            "--server.port", "8501",
-            "--server.address", "127.0.0.1",     # internal only – Render won't see this port
-            "--server.headless", "true",
-        ]
-    )
 
-# ── Health ──────────────────────────────────────────────────────
-@app.get("/health")
-def health_check():
-    if model is None:
-        raise HTTPException(status_code=503, detail="Model is not loaded")
-    return {"status": "healthy", "model_version": "1.0"}
-
-# ── Pydantic model ──────────────────────────────────────────────
 class CustomerRequest(BaseModel):
     tenure: int
     monthly_charges: float = Field(alias="MonthlyCharges")
@@ -76,7 +53,14 @@ class CustomerRequest(BaseModel):
     class Config:
         populate_by_name = True
 
-# ── Predict ──────────────────────────────────────────────────────
+
+@app.get("/health")
+def health_check():
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model is not loaded")
+    return {"status": "healthy", "model_version": "1.0"}
+
+
 @app.post("/predict")
 def predict_churn(customer: CustomerRequest):
     if model is None:
@@ -96,5 +80,5 @@ def predict_churn(customer: CustomerRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# ── Prometheus ───────────────────────────────────────────────────
+
 Instrumentator().instrument(app).expose(app)
