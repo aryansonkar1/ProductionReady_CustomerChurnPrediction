@@ -5,16 +5,21 @@ WORKDIR /app
 # Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install streamlit==1.31.0
 
-# Copy source code and models
+# Copy source code
 COPY src/ /app/src/
 COPY api/ /app/api/
 COPY configs/ /app/configs/
 COPY models/ /app/models/
-COPY frontend/ /app/frontend/
+COPY streamlit_app.py /app/streamlit_app.py
 
-# Expose port
-EXPOSE 8000
+# Copy entrypoint
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Run API
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render exposes $PORT (typically 10000); FastAPI listens there.
+# Streamlit runs internally on 8501 (not publicly exposed).
+EXPOSE 10000
+
+CMD ["/app/entrypoint.sh"]

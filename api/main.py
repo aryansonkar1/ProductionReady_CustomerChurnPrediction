@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 import joblib
 import pandas as pd
 import yaml
+import subprocess
+import os
 
 # Initialize app
 app = FastAPI(title="Customer Churn Prediction API")
 
-# Add CORS Middleware to allow our UI to communicate with the API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load config and model at startup
+# Load config & model
 with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
@@ -30,15 +30,32 @@ try:
     model = joblib.load(model_path)
 except Exception as e:
     model = None
-    print(f"Warning: Model could not be loaded from {model_path}. Error: {str(e)}")
+    print(f"Warning: Model could not be loaded. Error: {e}")
 
+# ── Launch Streamlit on startup (internal port 8501) ────────────
+@app.on_event("startup")
+async def launch_streamlit():
+    subprocess.Popen(
+        [
+            "streamlit", "run", "streamlit_app.py",
+            "--server.port", "8501",
+            "--server.address", "0.0.0.0",
+            "--server.headless", "true",
+        ]
+    )
+
+# ── Health ──────────────────────────────────────────────────────
+@app.get("/health")
+def health_check():
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model is not loaded")
+    return {"status": "healthy", "model_version": "1.0"}
+
+# ── Pydantic model ──────────────────────────────────────────────
 class CustomerRequest(BaseModel):
-    # Mapping to the user's requested request fields, while handling everything else via defaults
     tenure: int
     monthly_charges: float = Field(alias="MonthlyCharges")
     contract: str = Field(alias="Contract")
-    
-    # Other fields needed by the model pipeline, defaulted to prevent errors if omitted in basic test
     gender: str = "Male"
     SeniorCitizen: int = 0
     Partner: str = "No"
@@ -58,47 +75,26 @@ class CustomerRequest(BaseModel):
 
     class Config:
         populate_by_name = True
-        json_schema_extra = {
-            "example": {
-                "tenure": 12,
-                "MonthlyCharges": 85.5,
-                "Contract": "Month-to-month"
-            }
-        }
 
-# Telemetry monitoring instrumentation
-Instrumentator().instrument(app).expose(app)
-
-
-@app.get("/health")
-def health_check():
-    if model is None:
-        raise HTTPException(status_code=503, detail="Model is not loaded")
-    return {"status": "healthy", "model_version": "1.0"}
-
+# ── Predict ──────────────────────────────────────────────────────
 @app.post("/predict")
 def predict_churn(customer: CustomerRequest):
     if model is None:
         raise HTTPException(status_code=503, detail="Model is not loaded")
-    
-    # Convert request to DataFrame
+
     data_dict = customer.model_dump(by_alias=True)
     df = pd.DataFrame([data_dict])
-    
+
     try:
-        # Predict probability
         prob = model.predict_proba(df)[0][1]
-        
-        # Apply threshold
         prediction = int(prob >= threshold)
-        
         return {
             "prediction": prediction,
             "churn_probability": round(float(prob), 4),
-            "threshold": threshold
+            "threshold": threshold,
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# Mount frontend directory to the root to serve the UI
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+# ── Prometheus ───────────────────────────────────────────────────
+Instrumentator().instrument(app).expose(app)

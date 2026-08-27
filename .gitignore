@@ -39,3 +39,7 @@ mlruns/
 
 # Config secrets
 configs/secrets.yaml
+
+# Local notes
+INTERVIEW_PREP.md
+frontend/
