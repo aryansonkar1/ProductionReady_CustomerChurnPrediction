@@ -6,4 +6,5 @@ set -e
 exec streamlit run streamlit_app.py \
     --server.port "${PORT:-8501}" \
     --server.address 0.0.0.0 \
-    --server.headless true
+    --server.headless true \
+    --server.fileWatcherType none
