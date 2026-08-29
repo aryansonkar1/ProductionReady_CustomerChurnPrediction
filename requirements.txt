@@ -1,10 +1,11 @@
-# Core ML - scikit-learn MUST match the trained model version
+# Core ML - versions pinned to match exactly with local training environment
 scikit-learn==1.9.0
-numpy<2.0.0
+scipy==1.18.1
+numpy>=2.4.0
 imbalanced-learn==0.14.2
 xgboost==3.4.1
-pandas
-joblib
+pandas==2.3.3
+joblib==1.5.3
 pyyaml
 matplotlib
 seaborn
