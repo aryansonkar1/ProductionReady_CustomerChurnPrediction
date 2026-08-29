@@ -1,6 +1,6 @@
 # Core ML - scikit-learn MUST match the trained model version
 scikit-learn==1.9.0
-numpy
+numpy<2.0.0
 imbalanced-learn==0.14.2
 xgboost==3.4.1
 pandas
