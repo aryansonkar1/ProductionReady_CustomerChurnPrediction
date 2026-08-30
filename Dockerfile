@@ -5,7 +5,6 @@ WORKDIR /app
 # Install dependencies (pinned to match trained model versions exactly)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install streamlit==1.31.0
 
 # Copy only what is needed — no data/ folder (gitignored)
 COPY src/ /app/src/
