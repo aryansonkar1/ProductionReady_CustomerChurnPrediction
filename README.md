@@ -87,8 +87,4 @@ docker run -p 8000:8000 churn-api
 
 ## 🌐 Live Deployment
 
-The app is deployed on **Render** and accessible at:
-
-🔗 **https://churn-predictor-0w5i.onrender.com**
-
-The repository is configured to deploy instantly via Render, natively connecting to GitHub pushes. Every `git push` to `main` triggers an automatic redeployment.
+The app is automatically deployed on **Render** (see the top of this document for the Live Demo link). The repository is configured such that every `git push` to `main` triggers an automatic redeployment.
