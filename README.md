@@ -1,5 +1,7 @@
 # Production-Ready Customer Churn Prediction System
 
+### 🌐 [Live Demo → churn-prediction.onrender.com](https://churn-prediction.onrender.com)
+
 This repository demonstrates a complete, production-style Machine Learning pipeline for predicting customer churn. It upgrades a traditional Jupyter Notebook experimentation environment into a scalable, deployable system with rigorous software engineering practices, complete with an interactive Glassmorphism UI.
 
 ## 📌 Architecture
@@ -82,4 +84,11 @@ To quickly serve the isolated network:
 docker build -t churn-api .
 docker run -p 8000:8000 churn-api
 ```
-*(The repository is configured to deploy instantly via Render natively connecting to GitHub pushes!)*
+
+## 🌐 Live Deployment
+
+The app is deployed on **Render** and accessible at:
+
+🔗 **https://churn-prediction.onrender.com**
+
+The repository is configured to deploy instantly via Render, natively connecting to GitHub pushes. Every `git push` to `main` triggers an automatic redeployment.
